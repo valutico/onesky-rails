@@ -24,6 +24,12 @@ namespace :onesky do
     puts 'Done!'
   end
 
+  desc 'Download translations for a specified language from OneSky platform.'
+  task :download_one => :environment do
+    file_client.download(locale_path, only: ENV['LANG'])
+    puts 'Done!'
+  end
+
   def file_client
     require 'erb'
     data = YAML::load(ERB.new(File.read(Rails.root.join('config', 'onesky.yml'))).result)
