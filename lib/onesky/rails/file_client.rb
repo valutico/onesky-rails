@@ -21,7 +21,11 @@ NOTICE
         verify_languages!
 
         get_default_locale_files(string_path).map do |path|
-          filename = File.basename(path)
+          if include_relative_path_in_upload_filename?
+            filename = Pathname.new(path).relative_path_from(Pathname.new(upload_config['include_path_relative_to'])).to_s.gsub("/", "__")
+          else
+            filename = File.basename(path)
+          end
           puts "Uploading #{filename}"
           @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
           path
@@ -109,6 +113,10 @@ NOTICE
         return true unless upload_config.has_key?('is_keeping_all_strings')
 
         !!upload_config['is_keeping_all_strings']
+      end
+
+      def include_relative_path_in_upload_filename?
+        upload_config.has_key?('include_path_relative_to')
       end
 
       def generate_locale_files_filter
