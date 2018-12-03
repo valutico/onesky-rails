@@ -33,10 +33,10 @@ NOTICE
             puts "Uploading #{filename}"
             # @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
             path
+          rescue
+            puts "Rescued."
+            puts "Raw path: #{Pathname.new(path)}"
           end
-        rescue
-          puts "Rescued."
-          puts "Raw path: #{Pathname.new(path)}"
         end
       end
 
