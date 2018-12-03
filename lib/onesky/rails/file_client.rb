@@ -22,12 +22,9 @@ NOTICE
 
         get_default_locale_files(string_path).map do |path|
           if include_relative_path_in_upload_filename?
-            rel_path = upload_config['include_path_relative_to']
-            rel_path << "/" unless rel_path[-1] == '/'
-            filename = path.sub(%r{^/.*#{rel_path}}, '')
-            filename.gsub!("/", "__")
-            tmp_path = "/tmp/#{filename}"
-            puts "Uploading #{File.basename(path)} as #{filename}"
+            new_filename = modified_relative_path_filename(path)
+            tmp_path = "/tmp/#{new_filename}"
+            puts "Uploading #{File.basename(path)} as #{new_filename}"
             FileUtils.cp(path, tmp_path)
             @project.upload_file(file: tmp_path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
             FileUtils.rm(tmp_path)
@@ -52,7 +49,7 @@ NOTICE
       def download(string_path, options = {})
         verify_languages!
 
-        files = get_default_locale_files(string_path).map {|path| File.basename(path)}
+        files = get_default_locale_files(string_path).map {|path| modified_relative_path_filename(path) }
 
         locales = if options[:base_only]
           [@base_locale]
@@ -111,6 +108,12 @@ NOTICE
         locale_path = make_translation_dir(string_path, locale)
         target_file = locale_file_name(file, locale)
 
+        # create the directory if it doesn't exist
+        dirname = File.dirname(target_file)
+        unless File.directory?(dirname)
+          FileUtils.mkdir_p(dirname)
+        end
+
         File.open(File.join(locale_path, target_file), 'w') do |f|
           f.write(TRANSLATION_NOTICE + response.body.force_encoding(ENCODING))
         end
@@ -144,6 +147,17 @@ NOTICE
 
       def upload_config
         @config['upload'] ||= {}
+      end
+
+      def modified_relative_path_filename(path)
+        if include_relative_path_in_upload_filename?
+          rel_path = upload_config['include_path_relative_to']
+          rel_path << "/" unless rel_path[-1] == '/'
+          filename = path.sub(%r{^/.*#{rel_path}}, '')
+          filename.gsub("/", "__")
+        else
+          File.basename(path)
+        end
       end
 
     end
