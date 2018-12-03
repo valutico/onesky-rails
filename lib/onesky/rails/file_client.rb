@@ -22,7 +22,10 @@ NOTICE
 
         get_default_locale_files(string_path).map do |path|
           if include_relative_path_in_upload_filename?
+            puts "Raw path: #{Pathname.new(path)}"
+            puts "Relative path: #{Pathname.new(path).relative_path_from(Pathname.new(upload_config['include_path_relative_to']))}"
             filename = Pathname.new(path).relative_path_from(Pathname.new(upload_config['include_path_relative_to'])).to_s.gsub("/", "__")
+            puts "Upload filename: #{filename}"
           else
             filename = File.basename(path)
           end
