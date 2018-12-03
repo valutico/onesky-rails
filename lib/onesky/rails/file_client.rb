@@ -26,11 +26,16 @@ NOTICE
             rel_path << "/" unless rel_path[-1] == '/'
             filename = path.sub(%r{^/.*#{rel_path}}, '')
             filename.gsub!("/", "__")
+            tmp_path = "/tmp/#{filename}"
+            puts "Uploading #{File.basename(path)} as #{filename}"
+            FileUtils.cp(path, tmp_path)
+            @project.upload_file(file: tmp_path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
+            FileUtils.rm(tmp_path)
           else
             filename = File.basename(path)
+            puts "Uploading #{filename}"
+            @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
           end
-          puts "Uploading #{filename}"
-          @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
           path
         end
       end
