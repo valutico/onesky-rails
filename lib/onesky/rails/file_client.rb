@@ -21,22 +21,17 @@ NOTICE
         verify_languages!
 
         get_default_locale_files(string_path).map do |path|
-          begin
-            if include_relative_path_in_upload_filename?
-              puts "Raw path: #{Pathname.new(path)}"
-              puts "Relative path: #{Pathname.new(path).relative_path_from(Pathname.new(upload_config['include_path_relative_to']))}"
-              filename = Pathname.new(path).relative_path_from(Pathname.new(upload_config['include_path_relative_to'])).to_s.gsub("/", "__")
-              puts "Upload filename: #{filename}"
-            else
-              filename = File.basename(path)
-            end
-            puts "Uploading #{filename}"
-            # @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
-            path
-          rescue
-            puts "Rescued."
-            puts "Raw path: #{Pathname.new(path)}"
+          if include_relative_path_in_upload_filename?
+            rel_path = upload_config['include_path_relative_to']
+            rel_path << "/" unless rel_path[-1] == '/'
+            filename = path.sub(%r{^/.*#{rel_path}}, '')
+            filename.gsub!("/", "__")
+          else
+            filename = File.basename(path)
           end
+          puts "Uploading #{filename}"
+          # @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
+          path
         end
       end
 
