@@ -27,7 +27,7 @@ NOTICE
             filename = File.basename(path)
           end
           puts "Uploading #{filename}"
-          @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
+          # @project.upload_file(file: path, file_format: FILE_FORMAT, is_keeping_all_strings: is_keep_strings?)
           path
         end
       end
